@@ -8,7 +8,6 @@ Ext.define('ModernApp.view.login.LoginViewController', {
 
     if (values.username === 'admin' && values.password === 'padmin') {
       Ext.Msg.alert('Успех', 'Добро пожаловать!');
-      // Переход на главное окно
       Ext.Viewport.removeAll();
       Ext.Viewport.add([{ xtype: 'mainview' }]);
     } else {

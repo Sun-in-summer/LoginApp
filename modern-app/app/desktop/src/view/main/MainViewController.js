@@ -1,87 +1,117 @@
 Ext.define('ModernApp.view.main.MainViewController', {
-	extend: 'Ext.app.ViewController',
-	alias: 'controller.mainviewcontroller',
+  extend: 'Ext.app.ViewController',
+  alias: 'controller.mainviewcontroller',
 
-	routes: { 
-		':xtype': {action: 'mainRoute'}
-	},
+  onProductsClick: function () {
+    var tabPanel = this.lookup('productTabs');
+    var newTab = tabPanel.add({
+      xtype: 'productstab',
+      title: 'Товары ' + (tabPanel.items.length + 1),
+      closable: true,
+    });
+    tabPanel.setActiveItem(newTab);
+  },
 
-	initViewModel: function(vm){
-		vm.getStore('menu').on({
-			load: 'onMenuDataLoad',
-			single: true,
-			scope: this
-		});
-	},
+  onLogoutClick: function () {
+    Ext.Viewport.removeAll();
+    Ext.Viewport.add({ xtype: 'loginview' });
+  },
 
-	onMenuDataLoad: function(store){
-		this.mainRoute(Ext.util.History.getHash());
-	},
+  onFilterEnter: function (field, e) {
+    if (e.getKey() === e.ENTER) {
+      var idFilter = this.lookup('idFilter').getValue().toLowerCase(),
+        descriptionFilter = this.lookup('descriptionFilter')
+          .getValue()
+          .toLowerCase(),
+        store = this.lookup('productGrid').getStore();
 
-	mainRoute:function(xtype) {
-		var navview = this.lookup('navview'),
-			menuview = navview.lookup('menuview'),
-			centerview = this.lookup('centerview'),
-			exists = Ext.ClassManager.getByAlias('widget.' + xtype),
-			node, vm;
+      store.clearFilter(true);
+      store.filterBy(function (record) {
+        var matchesId = idFilter
+          ? record.get('id').toString() === idFilter
+          : true;
+        var matchesDescription = descriptionFilter
+          ? record.get('description').toLowerCase().includes(descriptionFilter)
+          : true;
+        return matchesId && matchesDescription;
+      });
+    }
+  },
 
-		if (exists === undefined) {
-			console.log(xtype + ' does not exist');
-			return;
-		}
-		if(!menuview.getStore()) {
-			console.log('Store not yet avalable from viewModel binding');
-			return;
-		}
+  renderName: function (value, metaData, record) {
+    metaData.style = 'cursor:pointer';
+    return value;
+  },
 
-		node = menuview.getStore().findNode('xtype', xtype);
+  onGridItemClick: function (view, record, item, index, e, options) {
+    var fieldName = e.position.column.dataIndex;
+    if (fieldName === 'name') {
+      this.openProductCard(record);
+    }
+  },
 
-		if (node == null) {
-			console.log('unmatchedRoute: ' + xtype);
-			return;
-		}
-		if (!centerview.getComponent(xtype)) {
-			centerview.add({ xtype: xtype,  itemId: xtype, heading: node.get('text') });
-		}
+  openProductCard: function (record) {
+    Ext.create('Ext.window.Window', {
+      title: 'Карточка товара',
+      modal: true,
+      items: [
+        {
+          xtype: 'form',
+          defaultType: 'textfield',
+          items: [
+            {
+              fieldLabel: 'Имя',
+              name: 'name',
+              value: record.get('name'),
+              readOnly: true,
+            },
+            {
+              fieldLabel: 'Описание',
+              name: 'description',
+              value: record.get('description'),
+              readOnly: true,
+            },
+            {
+              fieldLabel: 'Цена',
+              name: 'price',
+              value: record.get('price'),
+              xtype: 'numberfield',
+              allowBlank: false,
+              minValue: 0,
+            },
+            {
+              fieldLabel: 'Кол-во',
+              name: 'quantity',
+              value: record.get('quantity'),
+              xtype: 'numberfield',
+              allowBlank: false,
+              minValue: 0,
+            },
+          ],
+          buttons: [
+            {
+              text: 'Сохранить',
+              handler: function (btn) {
+                var win = btn.up('window'),
+                  form = win.down('form').getForm(),
+                  values = form.getValues();
 
-		centerview.setActiveItem(xtype);
-		menuview.setSelection(node);
-		vm = this.getViewModel(); 
-		vm.set('heading', node.get('text'));
-	},
-
-	onMenuViewSelectionChange: function (tree, node) {
-		if (node == null) { return }
-
-		var vm = this.getViewModel();
-
-		if (node.get('xtype') != undefined) {
-			this.redirectTo( node.get('xtype') );
-		}
-	},
-
-	onTopViewNavToggle: function () {
-		var vm = this.getViewModel();
-
-		vm.set('navCollapsed', !vm.get('navCollapsed'));
-	},
-
-	onHeaderViewDetailToggle: function (button) {
-		var vm = this.getViewModel();
-
-		vm.set('detailCollapsed', !vm.get('detailCollapsed'));
-
-		if(vm.get('detailCollapsed')===true) {
-			button.setIconCls('x-fa fa-arrow-left');
-		}
-		else {
-			button.setIconCls('x-fa fa-arrow-right');
-		}
-	},
-
-	onBottomViewlogout: function () {
-		localStorage.setItem("LoggedIn", false);
-		this.getView().destroy();
-		Ext.Viewport.add([{ xtype: 'loginview'}]);
-	}
+                if (form.isDirty()) {
+                  Ext.Msg.alert('Изменения', 'Измененные данные сохранены.');
+                  record.set(values);
+                }
+                win.close();
+              },
+            },
+            {
+              text: 'Отмена',
+              handler: function (btn) {
+                btn.up('window').close();
+              },
+            },
+          ],
+        },
+      ],
+    }).show();
+  },
 });
