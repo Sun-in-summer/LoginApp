@@ -1,6 +1,7 @@
 Ext.define('ModernApp.view.main.ProductsTab', {
   extend: 'Ext.container.Container',
   xtype: 'productstab',
+  controller: 'products',
   layout: 'vbox',
   items: [
     {
@@ -8,16 +9,15 @@ Ext.define('ModernApp.view.main.ProductsTab', {
       layout: 'hbox',
       items: [
         {
-          xtype: 'label',
-          text: 'ID',
-          margin: '0 10 0 0',
-        },
-        {
           xtype: 'textfield',
           reference: 'idFilter',
+          label: 'ID',
+          labelAlign: 'left',
+          labelWidth: 70,
           listeners: {
             specialkey: 'onFilterEnter',
           },
+          margin: '0 10 0 10',
         },
       ],
     },
@@ -26,16 +26,15 @@ Ext.define('ModernApp.view.main.ProductsTab', {
       layout: 'hbox',
       items: [
         {
-          xtype: 'label',
-          text: 'Описание',
-          margin: '0 10 0 10',
-        },
-        {
           xtype: 'textfield',
           reference: 'descriptionFilter',
+          label: 'Описание',
+          labelAlign: 'left',
+          labelWidth: 70,
           listeners: {
             specialkey: 'onFilterEnter',
           },
+          margin: '0 10 0 10',
         },
       ],
     },
@@ -70,6 +69,9 @@ Ext.define('ModernApp.view.main.ProductsTab', {
           },
         },
       ],
+      listeners: {
+        initialize: 'setupListeners',
+      },
     },
   ],
 });
