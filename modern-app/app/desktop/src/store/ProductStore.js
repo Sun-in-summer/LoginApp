@@ -1,6 +1,7 @@
 Ext.define('ModernApp.store.ProductStore', {
   extend: 'Ext.data.Store',
   alias: 'store.productstore',
+  model: 'ModernApp.model.Product',
   fields: ['id', 'name', 'description', 'price', 'quantity'],
   data: [
     {

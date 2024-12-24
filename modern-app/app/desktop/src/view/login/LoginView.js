@@ -2,6 +2,11 @@ Ext.define('ModernApp.view.login.LoginView', {
   extend: 'Ext.container.Container',
   xtype: 'loginview',
   controller: 'loginviewcontroller',
+  viewModel: {
+    data: {
+      login: {},
+    },
+  },
   layout: {
     type: 'hbox',
     align: 'middle',
@@ -20,6 +25,10 @@ Ext.define('ModernApp.view.login.LoginView', {
           label: 'Логин',
           name: 'username',
           allowBlank: false,
+          bind: '{login.username}',
+          listeners: {
+            specialkey: 'onSpecialKey',
+          },
         },
         {
           xtype: 'textfield',
@@ -27,6 +36,10 @@ Ext.define('ModernApp.view.login.LoginView', {
           name: 'password',
           inputType: 'password',
           allowBlank: false,
+          bind: '{login.password}',
+          listeners: {
+            specialkey: 'onSpecialKey',
+          },
         },
       ],
       buttons: [

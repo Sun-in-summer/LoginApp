@@ -5,8 +5,24 @@ Ext.define('ModernApp.view.card.ProductCardController', {
   onSave: function () {
     var form = this.getView();
     if (form && form.isValid()) {
-      form.getViewModel().get('product').commit();
+      var product = form.getViewModel().get('product');
+      var store = Ext.data.StoreManager.lookup('ModernApp.store.ProductStore');
+
+      var record = store.getById(product.get('id'));
+      if (record) {
+        record.set(product.getData());
+        store.commitChanges();
+      }
+
       form.up('window').close();
+
+      const productTabs = Ext.ComponentQuery.query('productstab');
+      productTabs.forEach((tab) => {
+        const grid = tab.down('grid');
+        if (grid && grid.getStore) {
+          grid.getStore().reload();
+        }
+      });
     }
   },
 

@@ -1,15 +1,26 @@
 Ext.define('ModernApp.view.login.LoginViewController', {
   extend: 'Ext.app.ViewController',
-
   alias: 'controller.loginviewcontroller',
+  username: 'admin',
+  password: 'padmin',
+
+  onSpecialKey: function (field, e) {
+    if (e.getKey() === e.ENTER) {
+      e.stopEvent();
+      this.onLoginButtonClick();
+    }
+  },
 
   onLoginButtonClick: function (button) {
-    var form = this.getView().down('formpanel'); // Ищем formpanel внутри текущего представления
+    var form = this.getView().down('formpanel');
 
     if (form) {
       var values = form.getValues();
 
-      if (values.username === 'admin' && values.password === 'padmin') {
+      if (
+        values.username === this.username &&
+        values.password === this.password
+      ) {
         Ext.Msg.alert('Успех', 'Добро пожаловать!');
 
         Ext.Viewport.removeAll();

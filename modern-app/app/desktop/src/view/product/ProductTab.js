@@ -1,7 +1,14 @@
-Ext.define('ModernApp.view.main.ProductsTab', {
+Ext.define('ModernApp.view.product.ProductsTab', {
   extend: 'Ext.container.Container',
   xtype: 'productstab',
   controller: 'products',
+  viewModel: {
+    data: {
+      idFilter: '',
+      descriptionFilter: '',
+    },
+  },
+  requires: ['ModernApp.store.ProductStore'],
   layout: 'vbox',
   items: [
     {
@@ -57,7 +64,6 @@ Ext.define('ModernApp.view.main.ProductsTab', {
           },
           renderer: function (value) {
             if (value === 0) {
-              console.log('IF workS');
               return (
                 '<span class="zero-quantity">' +
                 Ext.String.htmlEncode(value) +
@@ -69,9 +75,6 @@ Ext.define('ModernApp.view.main.ProductsTab', {
           },
         },
       ],
-      listeners: {
-        initialize: 'setupListeners',
-      },
     },
   ],
 });

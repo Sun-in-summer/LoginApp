@@ -3,17 +3,6 @@ Ext.define('ModernApp.view.product.ProductsController', {
   alias: 'controller.products',
 
   init: function () {
-    console.log('Controller initialized');
-    this.control({
-      'productstab grid': {
-        afterrender: this.setupListeners,
-      },
-    });
-  },
-
-  setupListeners: function () {
-    console.log('setupListeners called');
-
     var grid = this.lookupReference('productGrid');
 
     if (!grid) {
@@ -25,12 +14,19 @@ Ext.define('ModernApp.view.product.ProductsController', {
 
   onGridChildTap: function (grid, location) {
     var record = location.record;
-    console.log('Item clicked:', record.getData());
-
-    this.showProductCard(record);
+    if (record) {
+      console.log('Item clicked:', record.getData());
+      this.showProductCard(record);
+    }
   },
 
   showProductCard: function (record) {
+    var store = Ext.data.StoreManager.lookup('ModernApp.store.ProductStore');
+    if (!store) {
+      console.error('ProductStore not found');
+      return;
+    }
+
     var productWindow = Ext.create('Ext.window.Window', {
       modal: true,
       layout: 'fit',
@@ -61,26 +57,34 @@ Ext.define('ModernApp.view.product.ProductsController', {
   },
 
   applyFilters: function () {
-    var grid = this.getView().down('grid'),
-      store = grid.getStore(),
-      idFilter = this.lookupReference('idFilter').getValue(),
-      descriptionFilter = this.lookupReference('descriptionFilter').getValue();
+    var grid = this.getView().down('grid');
+    store = grid.getStore();
+    viewModel = this.getViewModel();
+    idFilter = viewModel.get('idFilter');
+    descriptionFilter = viewModel.get('descriptionFilter');
 
     store.clearFilter();
 
-    if (idFilter) {
+    if (idFilter.value) {
       store.filterBy(function (record) {
-        return record.get('id').toString() === idFilter;
+        return record.get('id').toString() === idFilter.value;
       });
     }
 
-    if (descriptionFilter) {
+    if (descriptionFilter.value) {
       store.filterBy(
         function (record) {
+          console.log(descriptionFilter.value.toLowerCase());
+          console.log(
+            record
+              .get('description')
+              .toLowerCase()
+              .includes(descriptionFilter.value.toLowerCase())
+          );
           return record
             .get('description')
             .toLowerCase()
-            .includes(descriptionFilter.toLowerCase());
+            .includes(descriptionFilter.value.toLowerCase());
         },
         null,
         null,
@@ -88,7 +92,7 @@ Ext.define('ModernApp.view.product.ProductsController', {
       );
     }
 
-    if (!idFilter && !descriptionFilter) {
+    if (!idFilter.value && !descriptionFilter.value) {
       store.clearFilter();
     }
   },

@@ -2,6 +2,7 @@ Ext.define('ModernApp.view.card.ProductCard', {
   extend: 'Ext.form.Panel',
   xtype: 'productcard',
   controller: 'productcard',
+  requires: ['ModernApp.store.ProductStore'],
 
   modal: true,
   title: 'Карточка товара',
@@ -10,9 +11,10 @@ Ext.define('ModernApp.view.card.ProductCard', {
 
   viewModel: {
     data: {
-      product: {},
+      product: null,
     },
   },
+  model: 'ModernApp.model.ProductCard',
 
   items: [
     {
